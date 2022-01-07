@@ -19,7 +19,6 @@ services:
     volumes:
       - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
 
-
   zookeeper:
     container_name: nussknacker_zookeeper
     image: zookeeper:${ZOOKEEPER_VERSION-3.5.5}
@@ -54,15 +53,13 @@ services:
 
   akhq:
     container_name: nussknacker_akhq
-    image: tchiotludo/akhq:${AKHQ_VERSION-0.18.0}
+    image: tchiotludo/akhq:${AKHQ_VERSION-0.20.0}
     environment:
       AKHQ_CONFIGURATION: |
         micronaut:
           server:
             context-path: /akhq
         akhq:
-          security:
-            default-group: reader
           connections:
             nussknacker:
               properties:
@@ -77,7 +74,7 @@ services:
 
   schemaregistry:
     container_name: nussknacker_schemaregistry
-    image: confluentinc/cp-schema-registry:${SCHEMA_REGISTRY_VERSION-5.5.0}
+    image: confluentinc/cp-schema-registry:${SCHEMA_REGISTRY_VERSION-5.5.7}
     environment:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_HOST_NAME: schemaregistry
@@ -111,6 +108,7 @@ services:
       - ./flink/flink-entrypoint.sh:/flink-entrypoint.sh
       # can be removed unless you use database enricher
       - ./flink/postgresql-42.2.19.jar:/opt/flink/lib/postgresql-42.2.19.jar
+      - ~/.m2/repository/org/apache/ignite/ignite-core/2.10.0/ignite-core-2.10.0.jar:/opt/flink/lib/ignite-core-2.10.0.jar
       - storage_flink:/opt/flink/data
 
   taskmanager:
@@ -135,6 +133,7 @@ services:
       - storage_flink:/opt/flink/data
       # can be removed unless you use database enricher
       - ./flink/postgresql-42.2.19.jar:/opt/flink/lib/postgresql-42.2.19.jar
+      - ~/.m2/repository/org/apache/ignite/ignite-core/2.10.0/ignite-core-2.10.0.jar:/opt/flink/lib/ignite-core-2.10.0.jar
     ulimits:
       nproc: 70000
       nofile:
@@ -153,6 +152,38 @@ services:
       - GF_SECURITY_ALLOW_EMBEDDING=true
     depends_on:
       - influxdb
+
+  ignite:
+    container_name: nussknacker_ignite
+    image: apacheignite/ignite:${IGNITE_VERSION-2.10.0}
+    ports:
+      - 10800:10800
+      - 9020:9020
+    volumes:
+      - ./ignite:/user_config
+      - storage_ignite:/persistent_storage
+    environment:
+      - OPTION_LIBS=ignite-rest-http,ignite-indexing
+      - IGNITE_WORK_DIR=/persistent_storage
+      - CONFIG_URI=file:///user_config/ignite-config.xml
+
+  nifi:
+    container_name: nussknacker_nifi
+    image: apache/nifi:${NIFI_VERSION-1.12.1}
+    entrypoint: [ "/opt/nifi/nifi-current/rafm_conf/start.sh" ]
+    ports:
+      - 3080:8080
+    volumes:
+      - ~/.m2/repository/org/postgresql/postgresql/42.2.18/postgresql-42.2.18.jar:/opt/nifi/nifi-current/storage/lib/postgresql-42.2.18.jar
+      - ~/.m2/repository/org/apache/ignite/ignite-core/2.10.0/ignite-core-2.10.0.jar:/opt/nifi/nifi-current/storage/lib/ignite-core-2.10.0.jar
+      - ~/.m2/repository/pl/touk/nifi-ignite-nar/0.2.3/nifi-ignite-nar-0.2.3.nar:/opt/nifi/nifi-current/extra-nars/nifi-ignite-nar-0.2.3.nar
+      - ~/.m2/repository/pl/touk/nifi-ignite-services-api-nar/0.2.3/nifi-ignite-services-api-nar-0.2.3.nar:/opt/nifi/nifi-current/extra-nars/nifi-ignite-services-api-nar-0.2.3.nar
+      - ~/.m2/repository/pl/touk/nifi-ignite-services-nar/0.2.3/nifi-ignite-services-nar-0.2.3.nar:/opt/nifi/nifi-current/extra-nars/nifi-ignite-services-nar-0.2.3.nar
+      - ./nifi/conf:/opt/nifi/nifi-current/rafm_conf
+    depends_on:
+      - kafka
+      - schemaregistry
+      - ignite
 
   nginx:
     container_name: nussknacker_nginx
@@ -181,6 +212,8 @@ volumes:
     name: nussknacker_storage_flink
   storage_influxdb:
     name: nussknacker_storage_influxdb
+  storage_ignite:
+    name: nussknacker_storage_ignite
 
 networks:
   default:

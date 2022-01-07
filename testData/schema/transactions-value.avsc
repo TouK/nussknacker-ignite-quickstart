@@ -1,0 +1,31 @@
+{
+  "type": "record",
+  "name": "transaction",
+  "namespace": "pl.touk",
+  "fields": [
+    {
+      "name": "clientId",
+      "type": "string"
+    },
+    {
+      "name": "amount",
+      "type": "int"
+    },
+    {
+      "name": "eventDate",
+      "type": [
+        "null",
+        {
+          "type": "long",
+          "logicalType": "timestamp-millis"
+        }
+      ],
+      "default": null
+    },
+    {
+      "name": "isLast",
+      "type": "boolean",
+      "default": false
+    }
+  ]
+}

@@ -22,6 +22,7 @@ services:
       #this is needed to be able to verify savepoints during deployments
       - storage_flink:/opt/flink/data
       - ./nussknacker/nussknacker.conf:/opt/nussknacker/conf/nussknacker.conf
+      - ~/.m2/repository/org/apache/ignite/ignite-core/2.10.0/ignite-core-2.10.0.jar:/opt/nussknacker/lib/ignite-core-2.10.0.jar
 
 volumes:
   storage_designer:

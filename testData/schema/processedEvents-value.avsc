@@ -1,0 +1,20 @@
+{
+  "type": "record",
+  "name": "transaction",
+  "namespace": "pl.touk",
+  "fields": [
+    {
+      "name": "clientId",
+      "type": "string"
+    },
+    {
+      "name": "amount",
+      "type": "int"
+    },
+    {
+      "name": "isLast",
+      "type": "boolean",
+      "default": false
+    }
+  ]
+}

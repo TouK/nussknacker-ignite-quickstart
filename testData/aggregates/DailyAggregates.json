@@ -1,0 +1,164 @@
+{
+  "metaData" : {
+    "id" : "DailyAggregates",
+    "typeSpecificData" : {
+      "parallelism" : 1,
+      "spillStateToDisk" : true,
+      "useAsyncInterpretation" : null,
+      "checkpointIntervalInSeconds" : null,
+      "type" : "StreamMetaData"
+    },
+    "additionalFields" : null,
+    "subprocessVersions" : {
+
+    }
+  },
+  "exceptionHandlerRef" : {
+    "parameters" : [
+    ]
+  },
+  "nodes" : [
+    {
+      "id" : "bank-transactions",
+      "ref" : {
+        "typ" : "kafka-avro",
+        "parameters" : [
+          {
+            "name" : "Topic",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "'transactions'"
+            }
+          },
+          {
+            "name" : "Schema version",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "'latest'"
+            }
+          }
+        ]
+      },
+      "additionalFields" : {
+        "description" : null,
+        "layoutData" : {
+          "x" : 0,
+          "y" : 0
+        }
+      },
+      "type" : "Source"
+    },
+    {
+      "id" : "aggregate-tumbling",
+      "outputVar" : "aggregated",
+      "nodeType" : "aggregate-tumbling",
+      "parameters" : [
+        {
+          "name" : "groupBy",
+          "expression" : {
+            "language" : "spel",
+            "expression" : "#input.clientId"
+          }
+        },
+        {
+          "name" : "aggregator",
+          "expression" : {
+            "language" : "spel",
+            "expression" : "#AGG.map({\n    clientId: #AGG.first,\n    amount: #AGG.sum,\n    eventDateTrimmed: #AGG.first\n})"
+          }
+        },
+        {
+          "name" : "aggregateBy",
+          "expression" : {
+            "language" : "spel",
+            "expression" : "{\n    clientId: #input.clientId,\n    amount: #input.amount,\n    eventDateTrimmed: #input.eventDate.atZone(#DATE.defaultTimeZone).toLocalDate.atStartOfDay \n}"
+          }
+        },
+        {
+          "name" : "windowLength",
+          "expression" : {
+            "language" : "spel",
+            "expression" : "T(java.time.Duration).parse('P1D')"
+          }
+        },
+        {
+          "name" : "emitWhen",
+          "expression" : {
+            "language" : "spel",
+            "expression" : "T(pl.touk.nussknacker.engine.flink.util.transformer.aggregate.TumblingWindowTrigger).OnEvent"
+          }
+        }
+      ],
+      "additionalFields" : {
+        "description" : null,
+        "layoutData" : {
+          "x" : 0,
+          "y" : 180
+        }
+      },
+      "type" : "CustomNode"
+    },
+    {
+      "id" : "daily-aggregates",
+      "ref" : {
+        "typ" : "kafka-avro",
+        "parameters" : [
+          {
+            "name" : "Topic",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "'dailyAggregates'"
+            }
+          },
+          {
+            "name" : "Schema version",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "'latest'"
+            }
+          },
+          {
+            "name" : "Key",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "#aggregated.clientId"
+            }
+          },
+          {
+            "name" : "clientId",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "#aggregated.clientId"
+            }
+          },
+          {
+            "name" : "amount",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "#aggregated.amount"
+            }
+          },
+          {
+            "name" : "eventDate",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "#aggregated.eventDateTrimmed.atZone(#DATE.defaultTimeZone).toInstant"
+            }
+          }
+        ]
+      },
+      "endResult" : null,
+      "isDisabled" : null,
+      "additionalFields" : {
+        "description" : null,
+        "layoutData" : {
+          "x" : 0,
+          "y" : 360
+        }
+      },
+      "type" : "Sink"
+    }
+  ],
+  "additionalBranches" : [
+  ]
+}

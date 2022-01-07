@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "name": "alert",
+  "namespace": "pl.touk",
+  "fields": [
+    {
+      "name": "message",
+      "type": "string"
+    }
+  ]
+}
