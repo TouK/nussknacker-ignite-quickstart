@@ -21,6 +21,7 @@ jobs:
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v2
-      - name: Test quickstart
+      - uses: sergeysova/jq-action@v2
+      - name: Test Ignite aggregates
         shell: bash
-        run: ./testQuickstart.sh
+        run: ./testAggregates.sh
