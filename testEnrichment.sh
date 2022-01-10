@@ -17,7 +17,7 @@ echo "Starting docker containers.."
 
 ./testData/waitForOkFromUrl.sh "api/processes/status" "Checking connect with Flink.." "Nussknacker not connected with flink" "designer"
 
-./testData/aggregates/createIgniteTables.sh
+./testData/createIgniteTables.sh
 
 ./testData/waitForKafkaConsumer.sh "transactions" "DetectLargeTransactions-bank-transactions"
 
