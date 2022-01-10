@@ -8,17 +8,14 @@
       "checkpointIntervalInSeconds" : null,
       "type" : "StreamMetaData"
     },
-    "isSubprocess" : false,
     "additionalFields" : {
       "description" : null,
-      "groups" : [
-      ],
       "properties" : {
-        
+
       }
     },
     "subprocessVersions" : {
-      
+
     }
   },
   "exceptionHandlerRef" : {
@@ -29,7 +26,7 @@
     {
       "id" : "bank-transactions",
       "ref" : {
-        "typ" : "kafka-registry-typed-json",
+        "typ" : "kafka-avro",
         "parameters" : [
           {
             "name" : "Topic",
@@ -78,12 +75,33 @@
             "type" : "Filter"
           },
           {
-            "id" : "customer data",
+            "id" : "get customer",
             "service" : {
-              "id" : "getCustomer",
+              "id" : "igniteLookup",
               "parameters" : [
                 {
-                  "name" : "customer_id",
+                  "name" : "Table",
+                  "expression" : {
+                    "language" : "spel",
+                    "expression" : "'CUSTOMER'"
+                  }
+                },
+                {
+                  "name" : "Cache TTL",
+                  "expression" : {
+                    "language" : "spel",
+                    "expression" : ""
+                  }
+                },
+                {
+                  "name" : "Key column",
+                  "expression" : {
+                    "language" : "spel",
+                    "expression" : "'clientId'"
+                  }
+                },
+                {
+                  "name" : "Key value",
                   "expression" : {
                     "language" : "spel",
                     "expression" : "#input.clientId"
@@ -103,59 +121,6 @@
           },
           {
             "defaultNext" : [
-              {
-                "id" : "send for audit",
-                "ref" : {
-                  "typ" : "kafka-registry-typed-json-raw",
-                  "parameters" : [
-                    {
-                      "name" : "Topic",
-                      "expression" : {
-                        "language" : "spel",
-                        "expression" : "'processedEvents'"
-                      }
-                    },
-                    {
-                      "name" : "Schema version",
-                      "expression" : {
-                        "language" : "spel",
-                        "expression" : "'latest'"
-                      }
-                    },
-                    {
-                      "name" : "Value validation mode",
-                      "expression" : {
-                        "language" : "spel",
-                        "expression" : "'strict'"
-                      }
-                    },
-                    {
-                      "name" : "Key",
-                      "expression" : {
-                        "language" : "spel",
-                        "expression" : ""
-                      }
-                    },
-                    {
-                      "name" : "Value",
-                      "expression" : {
-                        "language" : "spel",
-                        "expression" : "#input"
-                      }
-                    }
-                  ]
-                },
-                "endResult" : null,
-                "isDisabled" : null,
-                "additionalFields" : {
-                  "description" : null,
-                  "layoutData" : {
-                    "x" : 180,
-                    "y" : 900
-                  }
-                },
-                "type" : "Sink"
-              }
             ],
             "nexts" : [
               {
@@ -205,6 +170,67 @@
                       "description" : null,
                       "layoutData" : {
                         "x" : 540,
+                        "y" : 900
+                      }
+                    },
+                    "type" : "Sink"
+                  }
+                ]
+              },
+              {
+                "expression" : {
+                  "language" : "spel",
+                  "expression" : "true"
+                },
+                "nodes" : [
+                  {
+                    "id" : "send for audit",
+                    "ref" : {
+                      "typ" : "kafka-registry-typed-json-raw",
+                      "parameters" : [
+                        {
+                          "name" : "Topic",
+                          "expression" : {
+                            "language" : "spel",
+                            "expression" : "'processedEvents'"
+                          }
+                        },
+                        {
+                          "name" : "Schema version",
+                          "expression" : {
+                            "language" : "spel",
+                            "expression" : "'latest'"
+                          }
+                        },
+                        {
+                          "name" : "Value validation mode",
+                          "expression" : {
+                            "language" : "spel",
+                            "expression" : "'allowRedundantAndOptional'"
+                          }
+                        },
+                        {
+                          "name" : "Key",
+                          "expression" : {
+                            "language" : "spel",
+                            "expression" : ""
+                          }
+                        },
+                        {
+                          "name" : "Value",
+                          "expression" : {
+                            "language" : "spel",
+                            "expression" : "#input"
+                          }
+                        }
+                      ]
+                    },
+                    "endResult" : null,
+                    "isDisabled" : null,
+                    "additionalFields" : {
+                      "description" : null,
+                      "layoutData" : {
+                        "x" : 180,
                         "y" : 900
                       }
                     },
