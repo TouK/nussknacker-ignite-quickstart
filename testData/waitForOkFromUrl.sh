@@ -2,7 +2,7 @@
 
 set -e
 
-cd "$(dirname $0)"
+# cd "$(dirname $0)"
 
 URL_PATH=$1
 MSG_INIT=$2
@@ -31,6 +31,7 @@ while [[ $waitTime -lt $WAIT_LIMIT && $STATUS_CODE != 200 ]]; do
 done
 if [[ $STATUS_CODE != 200 ]]; then
   echo "$MSG_FAIL"
+
   docker-compose -f docker-compose-env.yml -f docker-compose.yml logs --tail=200 "$CONTAINER_FOR_LOGS"
   exit 1
 fi

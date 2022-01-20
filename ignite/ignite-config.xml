@@ -9,7 +9,7 @@
 
         <property name="consistentId" value="igniteServer1"/>
 
-<!--    Plik konfiguracyjny na potrzeby połączenia przez Thick clienta Ignite'a, np. w procesorze PutIgniteRecord-->
+<!--    The following configuration is used by the Ignite's thick client to connect to Ignite. We use thick client in PutIgniteRecord processor -->
         <property name="communicationSpi">
             <bean class="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi">
                 <property name="localPort" value="47100"/>
