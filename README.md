@@ -7,6 +7,9 @@ This is slightly modified version of Nussknacker's [quickstart](https://nussknac
 It shows how to use [Apache Ignite](https://ignite.apache.org/) in several cases of Nussknacker deployment:
  * aggregation - persist large aggregates collected while processing input records
  * enrichment - enrich input records with detailed data using Ignite as super-fast cache 
+ 
+![diagram](https://user-images.githubusercontent.com/50945192/150360471-83eeda01-381f-46ec-bf77-348b3e104ac8.png)
+
 
 ## Running
 
