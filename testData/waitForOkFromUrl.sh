@@ -2,8 +2,6 @@
 
 set -e
 
-# cd "$(dirname $0)"
-
 URL_PATH=$1
 MSG_INIT=$2
 MSG_FAIL=$3

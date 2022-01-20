@@ -2,8 +2,6 @@
 
 set -e
 
-cd "$(dirname $0)"
-
 TOPIC=$1
 URL_PATH="akhq/api/nussknacker/group/$2"
 SLEEP=${3-2}
