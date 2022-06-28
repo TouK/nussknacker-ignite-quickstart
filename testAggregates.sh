@@ -7,6 +7,8 @@ cd "$(dirname $0)"
 echo "Starting docker containers.."
 ./start.sh
 
+./testData/createIgniteTables.sh
+
 ./testData/waitForOkFromUrl.sh "api/processes" "Checking Nussknacker API response.." "Nussknacker not started" "designer"
 
 ./testData/waitForOkFromUrl.sh "flink/" "Checking Flink response.." "Flink not started" "jobmanager"
@@ -16,8 +18,6 @@ echo "Starting docker containers.."
 ./testData/importAndDeploy.sh ./aggregates/DailyAggregates.json
 
 ./testData/waitForOkFromUrl.sh "api/processes/status" "Checking connect with Flink.." "Nussknacker not connected with flink" "designer"
-
-./testData/createIgniteTables.sh
 
 ## this works only after first checkpoint?
 ./testData/waitForKafkaConsumer.sh "transactions" "DailyAggregates-bank-transactions"
